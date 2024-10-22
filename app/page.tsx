@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, SetStateAction } from "react";
+import { useState, useEffect, SetStateAction, useCallback } from "react";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
@@ -17,7 +17,7 @@ export default function Home() {
   const [includeNumbers, setIncludeNumbers] = useState(true);
   const [includeSymbols, setIncludeSymbols] = useState(true);
 
-  const generatePassword = () => {
+  const generatePassword = useCallback(() => {
     let charset = "";
     if (includeLowercase) charset += "abcdefghijklmnopqrstuvwxyz";
     if (includeUppercase) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -29,7 +29,13 @@ export default function Home() {
       newPassword += charset.charAt(Math.floor(Math.random() * charset.length));
     }
     setPassword(newPassword);
-  };
+  }, [
+    length,
+    includeUppercase,
+    includeLowercase,
+    includeNumbers,
+    includeSymbols,
+  ]);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(password).then(() => {
@@ -47,13 +53,7 @@ export default function Home() {
 
   useEffect(() => {
     generatePassword();
-  }, [
-    length,
-    includeUppercase,
-    includeLowercase,
-    includeNumbers,
-    includeSymbols,
-  ]);
+  }, [generatePassword]);
 
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
@@ -97,7 +97,9 @@ export default function Home() {
                   max={32}
                   step={1}
                   value={[length]}
-                  onValueChange={(value: SetStateAction<number>[]) => setLength(value[0])}
+                  onValueChange={(value: SetStateAction<number>[]) =>
+                    setLength(value[0])
+                  }
                   className="w-2/3"
                 />
               </div>
